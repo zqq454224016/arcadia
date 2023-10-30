@@ -156,7 +156,7 @@ func (r *DatasourceReconciler) Checkdatasource(ctx context.Context, logger logr.
 	}
 
 	// check datasource
-	if err := ds.Check(ctx, nil); err != nil {
+	if err := ds.Check(ctx, instance.Spec.OSS.DeepCopy()); err != nil {
 		return r.UpdateStatus(ctx, instance, err)
 	}
 

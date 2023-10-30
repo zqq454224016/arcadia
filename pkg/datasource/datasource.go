@@ -31,10 +31,12 @@ import (
 
 var (
 	ErrUnknowDatasourceType = errors.New("unknow datasource type")
+	ErrAccessPermission     = errors.New("dont have permission")
+	ErrAccessObject         = errors.New("access error object")
 )
 
 type Datasource interface {
-	Check(ctx context.Context, options any) error
+	Check(ctx context.Context, ossInfo *v1alpha1.OSS) error
 }
 
 type Unknown struct {
@@ -44,7 +46,7 @@ func NewUnknown(ctx context.Context, c client.Client) (*Unknown, error) {
 	return &Unknown{}, nil
 }
 
-func (u *Unknown) Check(ctx context.Context, options any) error {
+func (u *Unknown) Check(ctx context.Context, ossInfo *v1alpha1.OSS) error {
 	return ErrUnknowDatasourceType
 }
 
@@ -83,7 +85,25 @@ func NewOSS(ctx context.Context, c client.Client, endpoint *v1alpha1.Endpoint, o
 	return &OSS{Client: mc}, nil
 }
 
-// TODO: implement Check with specific `options`
-func (oss *OSS) Check(ctx context.Context, options any) error {
+func (oss *OSS) Check(ctx context.Context, ossInfo *v1alpha1.OSS) error {
+	if ossInfo.Bucket != "" {
+		_, err := oss.Client.BucketExists(context.Background(), ossInfo.Bucket)
+		if err != nil {
+			return err
+		}
+
+		if ossInfo.Object != "" {
+			_, err := oss.Client.StatObject(context.Background(), ossInfo.Bucket, ossInfo.Object, minio.StatObjectOptions{})
+			if err != nil {
+				// Determine whether there is a permission error
+				if minio.ToErrorResponse(err).Code == "AccessDenied" {
+					return ErrAccessPermission
+				} else {
+					return ErrAccessObject
+				}
+			}
+		}
+	}
+
 	return nil
 }
