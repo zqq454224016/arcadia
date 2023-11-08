@@ -55,13 +55,14 @@ func datasource2model(obj *unstructured.Unstructured) *model.Datasource {
 		Bucket: &bucket,
 	}
 	md := model.Datasource{
-		Name:        obj.GetName(),
-		Namespace:   obj.GetNamespace(),
-		Labels:      labels,
-		Annotations: annotations,
-		DisplayName: displayName,
-		Endpoint:    &spec,
-		Oss:         &oss,
+		Name:            obj.GetName(),
+		Namespace:       obj.GetNamespace(),
+		Labels:          labels,
+		Annotations:     annotations,
+		DisplayName:     displayName,
+		Endpoint:        &spec,
+		Oss:             &oss,
+		UpdateTimestamp: metav1.Now().Time,
 	}
 	return &md
 }

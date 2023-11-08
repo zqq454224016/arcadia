@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/kubeagi/arcadia/graphql-server/go-server/graph/model"
 	"github.com/kubeagi/arcadia/graphql-server/go-server/pkg/auth"
@@ -83,27 +82,7 @@ func (r *mutationResolver) DeleteDatasource(ctx context.Context, input *model.De
 
 // ListDatasources is the resolver for the listDatasources field.
 func (r *queryResolver) ListDatasources(ctx context.Context, input *model.ListDatasourceInput) ([]*model.Datasource, error) {
-	panic(fmt.Errorf("not implemented: ListDatasources - listDatasources"))
-}
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) Ds(ctx context.Context, input model.ListDatasourceInput) ([]*model.Datasource, error) {
 	token := auth.ForOIDCToken(ctx)
-
 	c, err := client.GetClientByIDToken(token)
 	if err != nil {
 		return nil, err
@@ -121,3 +100,12 @@ func (r *queryResolver) Ds(ctx context.Context, input model.ListDatasourceInput)
 	}
 	return datasource.DatasourceList(ctx, c, name, input.Namespace, labelSelector, fieldSelector)
 }
+
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
