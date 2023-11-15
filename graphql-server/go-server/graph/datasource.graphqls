@@ -103,9 +103,14 @@ type Mutation {
     createDatasource(input: CreateDatasourceInput!): Datasource!
     updateDatasource(input: UpdateDatasourceInput): Datasource!
     deleteDatasource(input: DeleteDatasourceInput): Void
+    createModel(input: CreateModelInput!): Model!
+    updateModel(input: UpdateModelInput): Model!
+    deleteModel(input: DeleteModelInput): Void
 }
 # query
 type Query{
     datasource(name: String!, namespace: String!): Datasource!
     datasourcesPaged(input: ListDatasourceInput!): PaginatedDatasource!
+    getModel(name: String!, namespace: String!): Model!
+    listModels(input: ListModelInput!): PaginatedModel!
 }
